@@ -21,16 +21,10 @@ public class LoginController implements Initializable {
     Stage stage;
     Parent scene;
 
-    public TextField userPassword;
+    public TextField password;
     public TextField name;
     public TextField area;
     public Button logIn;
-
-    public TextField userName;
-    public TextField password;
-    public TextField location;
-
-    public Button loginIn;
 
     public Button loginButton;
 
