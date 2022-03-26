@@ -11,11 +11,11 @@
             <Font size="60.0" />
          </font>
       </Label>
-      <TextField fx:id="name" layoutX="341.0" layoutY="238.0">
+      <TextField fx:id="Name" layoutX="341.0" layoutY="238.0">
          <font>
             <Font size="18.0" />
          </font></TextField>
-      <TextField fx:id="userPassword" layoutX="341.0" layoutY="288.0">
+      <TextField fx:id="Password" layoutX="341.0" layoutY="288.0">
          <font>
             <Font size="18.0" />
          </font></TextField>
@@ -28,7 +28,7 @@
             <Font size="18.0" />
          </font>
       </Label>
-      <TextField fx:id="area" layoutX="341.0" layoutY="350.0">
+      <TextField fx:id="Location" layoutX="341.0" layoutY="350.0">
          <font>
             <Font size="18.0" />
          </font>
