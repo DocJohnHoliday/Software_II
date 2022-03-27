@@ -8,12 +8,12 @@
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Login_Controller">
    <children>
-      <Label layoutX="341.0" layoutY="106.0" prefHeight="88.0" prefWidth="224.0" text="Sign-in">
+      <Label fx:id="SigninLabel" alignment="TOP_CENTER" layoutX="198.0" layoutY="106.0" prefHeight="88.0" prefWidth="427.0" text="Signin" textAlignment="CENTER">
          <font>
             <Font size="60.0" />
          </font>
       </Label>
-      <Label layoutX="244.0" layoutY="244.0" prefHeight="27.0" prefWidth="89.0" text="UserName:">
+      <Label fx:id="UsernameLabel" layoutX="158.0" layoutY="244.0" prefHeight="27.0" prefWidth="178.0" text="Username:">
          <font>
             <Font size="18.0" />
          </font></Label>
@@ -21,7 +21,7 @@
          <font>
             <Font size="18.0" />
          </font></TextField>
-      <Label layoutX="246.0" layoutY="294.0" prefHeight="27.0" prefWidth="89.0" text="Password:">
+      <Label fx:id="PasswordLabel" layoutX="158.0" layoutY="294.0" prefHeight="27.0" prefWidth="178.0" text="Password:">
          <font>
             <Font size="18.0" />
          </font>
@@ -30,15 +30,15 @@
          <font>
             <Font size="18.0" />
          </font></TextField>
-      <Label layoutX="256.0" layoutY="356.0" text="Location:">
+      <Label fx:id="LocationLabel" layoutX="158.0" layoutY="343.0" prefHeight="27.0" prefWidth="178.0" text="Location:">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <TextField fx:id="Location" editable="false" layoutX="341.0" layoutY="344.0" prefHeight="39.0" prefWidth="224.0" />
-      <Button fx:id="logIn" layoutX="364.0" layoutY="425.0" mnemonicParsing="false" onAction="#loginButton" prefHeight="39.0" prefWidth="89.0" text="Log in">
+      <Button fx:id="logIn" layoutX="364.0" layoutY="425.0" mnemonicParsing="false" onAction="#loginButton" prefHeight="39.0" prefWidth="143.0" text="Log in">
          <font>
             <Font size="18.0" />
          </font></Button>
+      <Label fx:id="ZoneLabel" layoutX="341.0" layoutY="337.0" prefHeight="39.0" prefWidth="224.0" />
    </children>
 </AnchorPane>

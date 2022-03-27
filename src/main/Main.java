@@ -7,6 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Locale;
+
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
@@ -17,6 +19,9 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+
+        /* Test for french */
+        Locale.setDefault(new Locale("fr"));
 
         JDBC.openConnection();
 

@@ -18,6 +18,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 
@@ -28,9 +29,14 @@ public class Login_Controller implements Initializable {
 
     public Button logIn;
 
+    public Label SigninLabel;
+    public Label UsernameLabel;
+    public Label PasswordLabel;
+    public Label LocationLabel;
+    public Label ZoneLabel;
+
     public TextField Name;
     public TextField Password;
-    public Label Location;
 
 
     public void loginButton(ActionEvent actionEvent) throws SQLException, IOException {
@@ -65,5 +71,25 @@ public class Login_Controller implements Initializable {
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        ResourceBundle rb = ResourceBundle.getBundle("languages/Nat", Locale.getDefault());
+
+        if (Locale.getDefault().getLanguage().equals("fr")) {
+
+            SigninLabel.setText(rb.getString("signin"));
+            UsernameLabel.setText(rb.getString("username"));
+            PasswordLabel.setText(rb.getString("password"));
+            LocationLabel.setText(rb.getString("location"));
+            logIn.setText(rb.getString("login"));
+
+        }
+        if (Locale.getDefault().getLanguage().equals("en")) {
+
+            SigninLabel.setText(rb.getString("signin"));
+            UsernameLabel.setText(rb.getString("username"));
+            PasswordLabel.setText(rb.getString("password"));
+            LocationLabel.setText(rb.getString("location"));
+            logIn.setText(rb.getString("login"));
+
+        }
     }
 }
