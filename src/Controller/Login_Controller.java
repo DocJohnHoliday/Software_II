@@ -18,6 +18,9 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -70,6 +73,9 @@ public class Login_Controller implements Initializable {
     }
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        ZoneId label = ZoneId.systemDefault();
+        ZoneLabel.setText(label.toString());
 
         ResourceBundle rb = ResourceBundle.getBundle("languages/Nat", Locale.getDefault());
 
