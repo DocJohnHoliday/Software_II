@@ -1,6 +1,6 @@
 package DBAccess;
 
-public class DBUsers {
+public class DB_Users {
 
 
 

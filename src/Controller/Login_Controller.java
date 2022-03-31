@@ -18,9 +18,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -28,7 +26,6 @@ import java.util.ResourceBundle;
 
 public class Login_Controller implements Initializable {
     Stage stage;
-    Parent scene;
 
     public Button logIn;
 

@@ -20,7 +20,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
 
-        /* Test for french */
+        /* Test for French */
         //Locale.setDefault(new Locale("fr"));
 
         JDBC.openConnection();
