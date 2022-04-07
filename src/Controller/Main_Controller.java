@@ -1,17 +1,18 @@
 package Controller;
 
+import DBAccess.DB_Country;
 import DBAccess.DB_Customers;
 import DBAccess.DB_Divisions;
+import Messages.Main_Warnings;
 import Model.Country;
 import Model.Customer;
 
 import Model.Divisions;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
 
 import java.net.URL;
 
@@ -22,14 +23,14 @@ import java.util.ResourceBundle;
 public class Main_Controller implements Initializable{
 
     //Customer Table
-    public TableView CustomerTable;
-    public TableColumn IDCol;
-    public TableColumn NameCol;
-    public TableColumn AddressCol;
-    public TableColumn PostalCol;
-    public TableColumn PhoneCol;
-    public TableColumn DivCol;
-    public TableColumn CountryCol;
+    public TableView<Customer>CustomerTable;
+    public TableColumn<Customer, Integer> IDCol;
+    public TableColumn<Customer, String> NameCol;
+    public TableColumn<Customer, String> AddressCol;
+    public TableColumn<Customer, String> PostalCol;
+    public TableColumn<Customer, String> PhoneCol;
+    public TableColumn<Customer, Integer> DivCol;
+    public TableColumn<Customer, String> CountryCol;
 
     //Buttons
     public Button deleteButton;
@@ -45,10 +46,12 @@ public class Main_Controller implements Initializable{
     public ComboBox<Country> countryCombo;
     public ComboBox<Divisions> divisionCombo;
 
-    private Customer customerToModify = null;
+    private static int index;
 
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        countryCombo.setItems(DB_Country.getCountries());
 
         CustomerTable.setItems(DB_Customers.getAllCustomers());
 
@@ -63,16 +66,57 @@ public class Main_Controller implements Initializable{
     }
 
     public void deleteCustomer(ActionEvent actionEvent) {
+
+        Customer selectedCustomer = CustomerTable.getSelectionModel().getSelectedItem();
+        index = DB_Customers.getAllCustomers().indexOf(selectedCustomer);
+
+        if(selectedCustomer == null) {
+            Main_Warnings.selectionDeleteWarning();
+        } else {
+            Main_Warnings.deleteConfirmation(selectedCustomer.getId());
+            CustomerTable.setItems(DB_Customers.getAllCustomers());
+        }
+        Main_Warnings.customerDeleted();
     }
 
     public void updateCustomer(ActionEvent actionEvent) {
+
+        Customer selectedCustomer = CustomerTable.getSelectionModel().getSelectedItem();
+        index = DB_Customers.getAllCustomers().indexOf(selectedCustomer);
+
+        if(selectedCustomer == null) {
+            Main_Warnings.nullUpdate();
+        } else {
+            idField.setText(String.valueOf(selectedCustomer.getId()));
+            addressField.setText(String.valueOf(selectedCustomer.getAddress()));
+            phoneField.setText(String.valueOf(selectedCustomer.getPhone()));
+            codeField.setText(String.valueOf(selectedCustomer.getPostalCode()));
+            nameField.setText(String.valueOf(selectedCustomer.getName()));
+
+            for(int i = 0; i < countryCombo.getItems().size(); i++) {
+                Country c = countryCombo.getItems().get(i);
+                if(c.getCountryName().equals(selectedCustomer.getCountry())) {
+                    countryCombo.setValue(c);
+                    break;
+                }
+            }
+            for(int i = 0; i < divisionCombo.getItems().size(); i++) {
+                Divisions d = divisionCombo.getItems().get(i);
+                if(d.getDivision().equals(selectedCustomer.getDivision())) {
+                    divisionCombo.setValue(d);
+                    break;
+                }
+            }
+        }
+
     }
 
     public void appointments(ActionEvent actionEvent) {
     }
 
-    public void saveCustomer(ActionEvent actionEvent) {
+    public void saveCustomer(ActionEvent actionEvent) throws NumberFormatException {
 
+        String saveID = idField.getText();
         String saveName = nameField.getText();
         String saveAddress = addressField.getText();
         String saveCode = codeField.getText();
@@ -80,19 +124,55 @@ public class Main_Controller implements Initializable{
         Divisions divisions = divisionCombo.getValue();
         Country country = countryCombo.getValue();
 
-        if(divisions == null || country == null) {
-            return;
-        }
-
-        if(customerToModify == null) {
-            DB_Customers.createCustomer(saveName, saveAddress, saveCode, savePhone, divisions.getDivisionId(), divisions.getDivision(), country.getCountryName());
+        if(saveName == null || saveName.length() == 0 || saveAddress == null || saveAddress.length() == 0 || saveCode == null || saveCode.length() == 0 ||
+                savePhone == null || savePhone.length() == 0) {
+            Main_Warnings.fieldsNullWarning();
+        } else if (divisions == null || country == null) {
+            Main_Warnings.selectionWarning();
         } else {
-            DB_Customers.modifyCustomer();
+            if(saveID == null || saveID.length() == 0) {
+                DB_Customers.createCustomer(saveName, saveAddress, saveCode, savePhone, divisions.getDivisionId());
+            } else {
+                int id = Integer.parseInt(saveID);
+                DB_Customers.modifyCustomer(id, saveName, saveAddress, saveCode, savePhone,
+                        divisions.getDivisionId());
+            }
         }
 
         CustomerTable.setItems(DB_Customers.getAllCustomers());
     }
 
     public void clearCustomerForm(ActionEvent actionEvent) {
+        idField.clear();
+        nameField.clear();
+        addressField.clear();
+        phoneField.clear();
+        codeField.clear();
+        divisionCombo.getSelectionModel().clearSelection();
+        countryCombo.getSelectionModel().clearSelection();
+    }
+
+    public void comboSelection(ActionEvent actionEvent) {
+
+        Country us = countryCombo.getItems().get(0);
+        Country uk = countryCombo.getItems().get(1);
+        Country c = countryCombo.getItems().get(2);
+
+        if(countryCombo.getSelectionModel().getSelectedItem() == null) {
+            return;
+        }
+
+        if(countryCombo.getSelectionModel().getSelectedItem().equals(us)) {
+            divisionCombo.setItems(DB_Divisions.getStates());
+        }
+
+        if(countryCombo.getSelectionModel().getSelectedItem().equals(uk)) {
+            divisionCombo.setItems(DB_Divisions.getUnitedKingdom());
+        }
+
+        if(countryCombo.getSelectionModel().getSelectedItem().equals(c)) {
+            divisionCombo.setItems(DB_Divisions.getCanada());
+        }
+
     }
 }

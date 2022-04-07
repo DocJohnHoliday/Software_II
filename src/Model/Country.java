@@ -18,4 +18,10 @@ public class Country {
     public String getCountryName() {
         return countryName;
     }
+
+    @Override
+    public String toString() {
+        return ("[" + countryId + "] " + countryName);
+    }
+
 }

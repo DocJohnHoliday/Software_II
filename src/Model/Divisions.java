@@ -4,15 +4,14 @@ public class Divisions {
 
     private int divisionId;
     private String division;
-    private String country;
 
-    public Divisions(int divisionId, String division, String country) {
+    public Divisions(int divisionId, String division) {
 
         this.divisionId = divisionId;
         this.division = division;
-        this.country = country;
 
     }
+
 
     public int getDivisionId() {
         return divisionId;
@@ -22,8 +21,10 @@ public class Divisions {
         return division;
     }
 
-    public String getCountry() {
-        return country;
+
+    @Override
+    public String toString() {
+        return ("[" + divisionId + "] " + division);
     }
 
 }
