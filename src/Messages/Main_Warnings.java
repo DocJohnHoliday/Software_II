@@ -25,10 +25,19 @@ public class Main_Warnings {
         });
     }
 
-    public static void selectionWarning() {
+    public static void countryWarning() {
         var alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Make Selection");
         alert.setContentText("You must select a country");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void divisionWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Make Selection");
+        alert.setContentText("You must select a division");
         alert.showAndWait().ifPresent((btnType) -> {
             clearDialogOptionSelections();
         });

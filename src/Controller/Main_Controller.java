@@ -9,11 +9,16 @@ import Model.Customer;
 
 import Model.Divisions;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 
+import java.io.IOException;
 import java.net.URL;
 
 import java.util.ResourceBundle;
@@ -21,6 +26,8 @@ import java.util.ResourceBundle;
 
 
 public class Main_Controller implements Initializable{
+
+    Stage stage;
 
     //Customer Table
     public TableView<Customer>CustomerTable;
@@ -75,8 +82,8 @@ public class Main_Controller implements Initializable{
         } else {
             Main_Warnings.deleteConfirmation(selectedCustomer.getId());
             CustomerTable.setItems(DB_Customers.getAllCustomers());
+            Main_Warnings.customerDeleted();
         }
-        Main_Warnings.customerDeleted();
     }
 
     public void updateCustomer(ActionEvent actionEvent) {
@@ -111,7 +118,16 @@ public class Main_Controller implements Initializable{
 
     }
 
-    public void appointments(ActionEvent actionEvent) {
+    public void appointments(ActionEvent actionEvent) throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/view/Appointments.fxml"));
+        loader.load();
+
+        stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        Parent scene = loader.getRoot();
+        stage.setScene(new Scene(scene));
+        stage.show();
     }
 
     public void saveCustomer(ActionEvent actionEvent) throws NumberFormatException {
@@ -127,8 +143,10 @@ public class Main_Controller implements Initializable{
         if(saveName == null || saveName.length() == 0 || saveAddress == null || saveAddress.length() == 0 || saveCode == null || saveCode.length() == 0 ||
                 savePhone == null || savePhone.length() == 0) {
             Main_Warnings.fieldsNullWarning();
-        } else if (divisions == null || country == null) {
-            Main_Warnings.selectionWarning();
+        } else if (divisions == null) {
+            Main_Warnings.divisionWarning();
+        } else if (country == null) {
+            Main_Warnings.countryWarning();
         } else {
             if(saveID == null || saveID.length() == 0) {
                 DB_Customers.createCustomer(saveName, saveAddress, saveCode, savePhone, divisions.getDivisionId());
