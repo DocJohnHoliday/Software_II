@@ -7,12 +7,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.util.Locale;
-
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/View/Login.fxml"));
         stage.setTitle("First Screen");
         stage.setScene(new Scene(root, 800, 600));
         stage.show();

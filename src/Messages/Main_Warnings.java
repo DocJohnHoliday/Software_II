@@ -43,6 +43,16 @@ public class Main_Warnings {
         });
     }
 
+    public static void cannotDeleteWarning(int customerID, String customerName, int appointmentID) {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Customer cannot be deleted");
+        alert.setContentText("Customer [" + customerID + "] " + customerName + " has an appointment. " +
+                "Appointment ID [" + appointmentID + "] must be deleted before customer can be deleted.");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
     public static void selectionDeleteWarning() {
         var alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Make Selection");
@@ -52,23 +62,23 @@ public class Main_Warnings {
         });
     }
 
-    public static void customerDeleted() {
+    public static void customerDeleted(int unluckyCustomerID, String unluckyCustomerName) {
         var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("DELETED");
-        alert.setContentText("Customer has been deleted");
+        alert.setContentText("Customer [" + unluckyCustomerID + "] " + unluckyCustomerName + " has been deleted.");
         alert.showAndWait().ifPresent((btnType) -> {
             clearDialogOptionSelections();
         });
     }
 
-    public static void deleteConfirmation(int unluckyCustomer) {
+    public static void deleteConfirmation(int unluckyCustomerID, String unluckyCustomerName) {
         var alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText("Delete?");
-        alert.setContentText("Are you sure you want to delete this customer?");
+        alert.setContentText("Are you sure you want to delete [" + unluckyCustomerID + "] " + unluckyCustomerName + "?");
         alert.showAndWait().ifPresent((btnType) -> {
             if (btnType == ButtonType.OK) {
-                DB_Customers.delete(unluckyCustomer);
+                DB_Customers.delete(unluckyCustomerID);
 
             } else if (btnType == ButtonType.CANCEL) {
                 //

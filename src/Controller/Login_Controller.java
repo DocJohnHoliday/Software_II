@@ -1,8 +1,13 @@
 package Controller;
 
+import DBAccess.DB_Users;
 import Helper.JDBC;
 import Messages.Login_Warnings;
 
+import Model.Customer;
+import Model.User;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -44,22 +49,21 @@ public class Login_Controller implements Initializable {
         String textName = Name.getText();
         String textPassword = Password.getText();
 
+
         if (textName != null && textName.length() != 0 &&
                 textPassword.length() != 0 && textPassword != null) {
 
-            String sql = "SELECT * FROM users WHERE User_Name='" + textName + "' and Password='" + textPassword + "'";
-            PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            if (DB_Users.loginCheck(textName, textPassword) == true) {
 
-            if (rs.next()) {
                 FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(getClass().getResource("/view/Main_Form.fxml"));
+                loader.setLocation(getClass().getResource("/View/Appointments.fxml"));
                 loader.load();
 
                 stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
                 Parent scene = loader.getRoot();
                 stage.setScene(new Scene(scene));
                 stage.show();
+
 
             } else {
                 Login_Warnings.incorrectLogin();

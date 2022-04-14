@@ -3,7 +3,9 @@ package Controller;
 import DBAccess.DB_Country;
 import DBAccess.DB_Customers;
 import DBAccess.DB_Divisions;
+import DBAccess.DB_Appointments;
 import Messages.Main_Warnings;
+import Model.Appointments;
 import Model.Country;
 import Model.Customer;
 
@@ -49,6 +51,7 @@ public class Main_Controller implements Initializable{
     public TextField addressField;
     public TextField phoneField;
     public TextField nameField;
+
     //Combo Fields
     public ComboBox<Country> countryCombo;
     public ComboBox<Divisions> divisionCombo;
@@ -72,19 +75,6 @@ public class Main_Controller implements Initializable{
         
     }
 
-    public void deleteCustomer(ActionEvent actionEvent) {
-
-        Customer selectedCustomer = CustomerTable.getSelectionModel().getSelectedItem();
-        index = DB_Customers.getAllCustomers().indexOf(selectedCustomer);
-
-        if(selectedCustomer == null) {
-            Main_Warnings.selectionDeleteWarning();
-        } else {
-            Main_Warnings.deleteConfirmation(selectedCustomer.getId());
-            CustomerTable.setItems(DB_Customers.getAllCustomers());
-            Main_Warnings.customerDeleted();
-        }
-    }
 
     public void updateCustomer(ActionEvent actionEvent) {
 
@@ -118,18 +108,6 @@ public class Main_Controller implements Initializable{
 
     }
 
-    public void appointments(ActionEvent actionEvent) throws IOException {
-
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/view/Appointments.fxml"));
-        loader.load();
-
-        stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-        Parent scene = loader.getRoot();
-        stage.setScene(new Scene(scene));
-        stage.show();
-    }
-
     public void saveCustomer(ActionEvent actionEvent) throws NumberFormatException {
 
         String saveID = idField.getText();
@@ -160,6 +138,25 @@ public class Main_Controller implements Initializable{
         CustomerTable.setItems(DB_Customers.getAllCustomers());
     }
 
+    public void comboSelection(ActionEvent actionEvent) {
+
+        Country us = countryCombo.getItems().get(0);
+        Country uk = countryCombo.getItems().get(1);
+        Country c = countryCombo.getItems().get(2);
+        if(countryCombo.getSelectionModel().getSelectedItem() == null) {
+            return;
+        }
+        if(countryCombo.getSelectionModel().getSelectedItem().equals(us)) {
+            divisionCombo.setItems(DB_Divisions.getStates());
+        }
+        if(countryCombo.getSelectionModel().getSelectedItem().equals(uk)) {
+            divisionCombo.setItems(DB_Divisions.getUnitedKingdom());
+        }
+        if(countryCombo.getSelectionModel().getSelectedItem().equals(c)) {
+            divisionCombo.setItems(DB_Divisions.getCanada());
+        }
+    }
+
     public void clearCustomerForm(ActionEvent actionEvent) {
         idField.clear();
         nameField.clear();
@@ -170,27 +167,37 @@ public class Main_Controller implements Initializable{
         countryCombo.getSelectionModel().clearSelection();
     }
 
-    public void comboSelection(ActionEvent actionEvent) {
+    public void deleteCustomer(ActionEvent actionEvent) {
 
-        Country us = countryCombo.getItems().get(0);
-        Country uk = countryCombo.getItems().get(1);
-        Country c = countryCombo.getItems().get(2);
+        Customer selectedCustomer = CustomerTable.getSelectionModel().getSelectedItem();
+        index = DB_Customers.getAllCustomers().indexOf(selectedCustomer);
 
-        if(countryCombo.getSelectionModel().getSelectedItem() == null) {
-            return;
+        if(selectedCustomer == null) {
+            Main_Warnings.selectionDeleteWarning();
+        } else {
+            for (int i = 0; i < DB_Appointments.getAllAppointments().size(); i++) {
+                Appointments sa = DB_Appointments.getAllAppointments().get(i);
+                if (sa.getCustomerID() == selectedCustomer.getId()) {
+                    Main_Warnings.cannotDeleteWarning(selectedCustomer.getId(), selectedCustomer.getName(), sa.getAppointmentID());
+                } else {
+                    Main_Warnings.deleteConfirmation(selectedCustomer.getId(), selectedCustomer.getName());
+                    CustomerTable.setItems(DB_Customers.getAllCustomers());
+                    Main_Warnings.customerDeleted(selectedCustomer.getId(), selectedCustomer.getName());
+                }
+                break;
+            }
         }
+    }
 
-        if(countryCombo.getSelectionModel().getSelectedItem().equals(us)) {
-            divisionCombo.setItems(DB_Divisions.getStates());
-        }
+    public void appointments(ActionEvent actionEvent) throws IOException {
 
-        if(countryCombo.getSelectionModel().getSelectedItem().equals(uk)) {
-            divisionCombo.setItems(DB_Divisions.getUnitedKingdom());
-        }
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/View/Appointments.fxml"));
+        loader.load();
 
-        if(countryCombo.getSelectionModel().getSelectedItem().equals(c)) {
-            divisionCombo.setItems(DB_Divisions.getCanada());
-        }
-
+        stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+        Parent scene = loader.getRoot();
+        stage.setScene(new Scene(scene));
+        stage.show();
     }
 }
