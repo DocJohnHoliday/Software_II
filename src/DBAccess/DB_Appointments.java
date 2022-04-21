@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -19,8 +20,6 @@ public class DB_Appointments {
     public static ObservableList<Appointments> getAllAppointments() {
 
         ObservableList<Appointments> aList = FXCollections.observableArrayList();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         try {
 
@@ -42,8 +41,14 @@ public class DB_Appointments {
                 int userID = rs.getInt("User_ID");
 
 
+                LocalDateTime startLDT = start.toLocalDateTime();
+                ZonedDateTime startZDT = startLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                LocalDateTime endLDT = end.toLocalDateTime();
+                ZonedDateTime endZDT = endLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
                 Appointments D = new Appointments(appointmentID, title, description, location,
-                        contactName, type, start, end, customerID, userID);
+                        contactName, type, startZDT, endZDT, customerID, userID);
                 aList.add(D);
 
             }
@@ -84,7 +89,34 @@ public class DB_Appointments {
     }
 
     public static void updateAppointment(int id, String title, String description, String location, int contact, String type, int customer,
-                                         LocalDateTime start, LocalDateTime end, int userID) {
+                                         ZonedDateTime start, ZonedDateTime end, int userID) {
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String startString = start.format(formatter);
+        String endString = end.format(formatter);
+
+        try {
+            String sqlti = "UPDATE appointments set Title = ?, Description = ?, Location = ?, Type = ?, Start = ?, End = ?," +
+                    " Customer_ID = ?, User_ID = ?, Contact_ID = ? WHERE Appointment_ID = ?";
+
+            PreparedStatement ps = JDBC.getConnection().prepareStatement(sqlti);
+            ps.setString(1, title);
+            ps.setString(2, description);
+            ps.setString(3, location);
+            ps.setString(4, type);
+            ps.setString(5, startString);
+            ps.setString(6, endString);
+            ps.setInt(7, customer);
+            ps.setInt(8, userID);
+            ps.setInt(9, contact);
+            ps.setInt(10, id);
+
+            ps.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 

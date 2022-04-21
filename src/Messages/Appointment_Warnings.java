@@ -1,8 +1,11 @@
 package Messages;
 
+import DBAccess.DB_Appointments;
 import DBAccess.DB_Customers;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+
+import java.time.ZonedDateTime;
 
 public class Appointment_Warnings {
 
@@ -19,6 +22,24 @@ public class Appointment_Warnings {
         var alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Make Selection");
         alert.setContentText("You must select a contact");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void userWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Make Selection");
+        alert.setContentText("You must select user that has added appointment");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void timeWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Make Selection");
+        alert.setContentText("You must select a start hour/start minute and end hour/end minute");
         alert.showAndWait().ifPresent((btnType) -> {
             clearDialogOptionSelections();
         });
@@ -57,11 +78,47 @@ public class Appointment_Warnings {
         alert.setContentText("Are you sure you want to delete appointment ID [" + appointmentID + "] " + " TYPE [" + type + "] ?");
         alert.showAndWait().ifPresent((btnType) -> {
             if (btnType == ButtonType.OK) {
-                DB_Customers.delete(appointmentID);
+                DB_Appointments.deleteAppointment(appointmentID);
 
             } else if (btnType == ButtonType.CANCEL) {
                 //
             }
+        });
+    }
+
+    public static void upcomingAppointmentWarning(ZonedDateTime start, int id) {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Appointment coming up within 15 minutes");
+        alert.setContentText("Appointment ID[" + id + " ] will start at " + start);
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void startAppointmentWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Before or after business hours");
+        alert.setContentText("The appointment start time must be after 8:00AM EST and before 10:00PM EST");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void endAppointmentWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Before or after business hours");
+        alert.setContentText("The appointment end time must be after 8:00AM EST and before 10:00PM EST");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void weekendWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Before or after business hours");
+        alert.setContentText("The appointment cannot be on weekends");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
         });
     }
 

@@ -165,6 +165,7 @@ public class Main_Controller implements Initializable{
         codeField.clear();
         divisionCombo.getSelectionModel().clearSelection();
         countryCombo.getSelectionModel().clearSelection();
+        CustomerTable.getSelectionModel().clearSelection();
     }
 
     public void deleteCustomer(ActionEvent actionEvent) {

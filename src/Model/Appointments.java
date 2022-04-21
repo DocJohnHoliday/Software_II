@@ -1,6 +1,7 @@
 package Model;
 
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 
 public class Appointments {
 
@@ -10,13 +11,13 @@ public class Appointments {
     private String location;
     private String contactName;
     private String type;
-    private Timestamp start;
-    private Timestamp end;
+    private ZonedDateTime start;
+    private ZonedDateTime end;
     private int customerID;
     private int userID;
 
     public Appointments(int appointmentID, String title, String description, String location, String contactName,
-                        String type, Timestamp start, Timestamp end, int customerID, int userID) {
+                        String type, ZonedDateTime start, ZonedDateTime end, int customerID, int userID) {
 
         this.appointmentID = appointmentID;
         this.title = title;
@@ -50,11 +51,11 @@ public class Appointments {
         return type;
     }
 
-    public Timestamp getStart() {
+    public ZonedDateTime getStart() {
         return start;
     }
 
-    public Timestamp getEnd() {
+    public ZonedDateTime getEnd() {
         return end;
     }
 

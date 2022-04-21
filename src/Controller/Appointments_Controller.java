@@ -23,14 +23,15 @@ import java.net.URL;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.temporal.Temporal;
 import java.util.Calendar;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class Appointments_Controller implements Initializable {
 
     Stage stage;
+
+    ZoneId label = ZoneId.systemDefault();
 
     public TableView<Appointments> AppointmentTable;
     public TableColumn<Appointments, Integer> IDCol;
@@ -39,8 +40,8 @@ public class Appointments_Controller implements Initializable {
     public TableColumn<Appointments, String> locationCol;
     public TableColumn<Appointments, String> contactCol;
     public TableColumn<Appointments, String> typeCol;
-    public TableColumn<Appointments, Timestamp> startCol;
-    public TableColumn<Appointments, Timestamp> endCol;
+    public TableColumn<Appointments, ZonedDateTime> startCol;
+    public TableColumn<Appointments, ZonedDateTime> endCol;
     public TableColumn<Appointments, Integer> customerIDCol;
     public TableColumn<Appointments, Integer> userIDCol;
 
@@ -53,8 +54,6 @@ public class Appointments_Controller implements Initializable {
     public TextField descriptionField;
     public TextField locationField;
     public TextField typeField;
-    public TextField startTimeField;
-    public TextField endTimeField;
     public Button clearButton;
     public TextArea messageCenter;
 
@@ -77,22 +76,28 @@ public class Appointments_Controller implements Initializable {
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        for(int i = 0; i < DB_Appointments.getAllAppointments().size(); i++) {
+            Appointments a = DB_Appointments.getAllAppointments().get(i);
+            ZonedDateTime beforeApt = ZonedDateTime.now().minusMinutes(15);
+            ZonedDateTime now = ZonedDateTime.now();
+            if(a.getStart().isAfter(beforeApt) && now.isBefore(a.getStart())) {
+                Appointment_Warnings.upcomingAppointmentWarning(a.getStart(), a.getAppointmentID());
+            }
+        }
+
         AppointmentTable.setItems(DB_Appointments.getAllAppointments());
-
         customerIDCombo.setItems(DB_Customers.getAllCustomers());
-
         contactCombo.setItems(DB_Contacts.getAllContacts());
-
         userIDCombo.setItems(DB_Users.getAllUser());
 
         ObservableList<Integer> hours = FXCollections.observableArrayList();
         ObservableList<Integer> minutes = FXCollections.observableArrayList();
 
-        for(int j = 1; j < 60; j++) {
+        for(int j = 0; j < 60; j++) {
             minutes.add(j);
         }
 
-        for(int i = 8; i <= 22; i++) {
+        for(int i = 0; i <= 24; i++) {
             hours.add(i);
         }
 
@@ -127,6 +132,20 @@ public class Appointments_Controller implements Initializable {
             descriptionField.setText(String.valueOf(selectedAppointment.getDescription()));
             locationField.setText(String.valueOf(selectedAppointment.getLocation()));
             typeField.setText(String.valueOf(selectedAppointment.getType()));
+
+            LocalDate datePicker = selectedAppointment.getStart().toLocalDate();
+            appointmentDate.setValue(datePicker);
+
+            LocalTime startHour = selectedAppointment.getStart().toLocalTime();
+            startHourCombo.setValue(startHour.getHour());
+            LocalTime startMinute = selectedAppointment.getStart().toLocalTime();
+            startMinCombo.setValue(startMinute.getMinute());
+
+            LocalTime endHour = selectedAppointment.getEnd().toLocalTime();
+            endHourCombo.setValue(endHour.getHour());
+            LocalTime endMinute = selectedAppointment.getEnd().toLocalTime();
+            endMinCombo.setValue(endMinute.getMinute());
+
 
 
             for(int i = 0; i < contactCombo.getItems().size(); i++) {
@@ -165,45 +184,67 @@ public class Appointments_Controller implements Initializable {
         Customer customer = customerIDCombo.getValue();
         User user = userIDCombo.getValue();
 
+        //For selecting start and end time from combo boxes
         Integer startHours = startHourCombo.getValue();
         Integer startMinutes = startMinCombo.getValue();
         Integer endHours = endHourCombo.getValue();
         Integer endMinutes = endMinCombo.getValue();
-
+        //Create LocalTime from combo box selection
         LocalTime start = LocalTime.of(startHours, startMinutes);
         LocalTime end = LocalTime.of(endHours, endMinutes);
-
+        //Create LocalDateTime from date-picker and combo box selection
         LocalDateTime sdt = LocalDateTime.of(appointmentDate.getValue(), start);
         LocalDateTime edt = LocalDateTime.of(appointmentDate.getValue(), end);
-
-        ZoneId label = ZoneId.systemDefault();
-
+        //Create ZonedDateTime from LocalDateTime
         ZonedDateTime zsd = ZonedDateTime.of(sdt, label);
-
+        ZonedDateTime zed = ZonedDateTime.of(edt, label);
+        //Make ZonedDateTime UTC for database
         ZonedDateTime s = zsd.withZoneSameInstant(ZoneOffset.UTC);
+        ZonedDateTime e = zed.withZoneSameInstant(ZoneOffset.UTC);
+        //For checking appointment time in EST
+        ZonedDateTime convertStartEST = zsd.withZoneSameInstant(ZoneId.of("America/New_York"));
+        ZonedDateTime convertEndEST = zed.withZoneSameInstant(ZoneId.of("America/New_York"));
+        LocalTime startTimeCheck = convertStartEST.toLocalTime();
+        LocalTime endTimeCheck = convertEndEST.toLocalTime();
+        DayOfWeek startAppointmentDayToCheck = convertStartEST.toLocalDate().getDayOfWeek();
+        DayOfWeek endAppointmentDayToCheck = convertEndEST.toLocalDate().getDayOfWeek();
+        int startWeekend = startAppointmentDayToCheck.getValue();
+        int endWeekend = endAppointmentDayToCheck.getValue();
+        int workWeekStart = DayOfWeek.MONDAY.getValue();
+        int workWeekEnd = DayOfWeek.FRIDAY.getValue();
+        LocalTime estBusinessStart = LocalTime.of(8, 0, 0);
+        LocalTime estBusinessEnd = LocalTime.of(22, 0, 0);
 
-        System.out.println(zsd);
-        System.out.println(s);
+        if(saveTitle == null || saveTitle.length() == 0 || saveDescription == null || saveDescription.length() == 0 ||
+                saveLocation == null || saveLocation.length() == 0 || saveType == null || saveType.length() == 0 ) {
+            Appointment_Warnings.fieldsNullWarning();
+        } else if(contacts == null) {
+            Appointment_Warnings.contactWarning();
+        } else if(customer == null) {
+            Appointment_Warnings.customerWarning();
+        }  else if(startHours == null || startMinutes == null || endHours == null || endMinutes == null) {
+                Appointment_Warnings.timeWarning();
+        }  else if(user == null) {
+            Appointment_Warnings.userWarning();
+        } else if(startTimeCheck.isBefore(estBusinessStart) || startTimeCheck.isAfter(estBusinessEnd)) {
+            Appointment_Warnings.startAppointmentWarning();
+        } else if(endTimeCheck.isBefore(estBusinessStart) || endTimeCheck.isAfter(estBusinessEnd)){
+            Appointment_Warnings.endAppointmentWarning();
+        } else if(startWeekend < workWeekStart || startWeekend > workWeekEnd ||
+                endWeekend < workWeekStart || endWeekend > workWeekEnd){
+            Appointment_Warnings.weekendWarning();
+        } else {
+            if(saveID == null || saveID.length() == 0) {
+                DB_Appointments.createAppointment(saveTitle, saveDescription, saveLocation, contacts.getContactID(), saveType, customer.getId(),
+                        s, e, user.getId());
+            } else {
+                int id = Integer.parseInt(saveID);
+                DB_Appointments.updateAppointment(id, saveTitle, saveDescription, saveLocation, contacts.getContactID(), saveType, customer.getId(),
+                        s, e, user.getId());
+            }
+        }
 
-//        if(saveTitle == null || saveTitle.length() == 0 || saveDescription == null || saveDescription.length() == 0 ||
-//                saveLocation == null || saveLocation.length() == 0 || saveType == null || saveType.length() == 0 ) {
-//            Appointment_Warnings.fieldsNullWarning();
-//        } else if (contacts == null) {
-//            Appointment_Warnings.contactWarning();
-//        } else if (customer == null) {
-//            Appointment_Warnings.customerWarning();
-//        } else {
-//            if(saveID == null || saveID.length() == 0) {
-//                DB_Appointments.createAppointment(saveTitle, saveDescription, saveLocation, contacts.getContactID(), saveType, customer.getId(),
-//                        sdt, edt, user.getId());
-//            } else {
-//                int id = Integer.parseInt(saveID);
-//                DB_Appointments.updateAppointment(id, saveTitle, saveDescription, saveLocation, contacts.getContactID(), saveType, customer.getId(),
-//                        sdt, edt, user.getId());
-//            }
-//        }
-//
-//        AppointmentTable.setItems(DB_Appointments.getAllAppointments());
+        AppointmentTable.setItems(DB_Appointments.getAllAppointments());
     }
 
     public void clearAppointmentForm(ActionEvent actionEvent) {
@@ -216,6 +257,7 @@ public class Appointments_Controller implements Initializable {
         customerIDCombo.getSelectionModel().clearSelection();
         userIDCombo.getSelectionModel().clearSelection();
         appointmentDate.getEditor().clear();
+        AppointmentTable.getSelectionModel().clearSelection();
     }
 
     public void deleteAppointment(ActionEvent actionEvent) {
