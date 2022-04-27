@@ -17,12 +17,12 @@
    <children>
       <AnchorPane layoutX="4.0" layoutY="6.0" prefHeight="215.0" prefWidth="1068.0" style="-fx-border-color: black; -fx-border-radius: 10;">
          <children>
-            <Label layoutX="36.0" layoutY="16.0" style="-fx-background-color: #c9c8c5; -fx-background-radius: 5;" text="Appointments">
+            <Label layoutX="34.0" layoutY="8.0" style="-fx-background-color: #c9c8c5; -fx-background-radius: 5;" text="Appointments">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
-            <TableView fx:id="AppointmentTable" layoutX="8.0" layoutY="60.0" prefHeight="104.0" prefWidth="1043.0">
+            <TableView fx:id="AppointmentTable" layoutX="8.0" layoutY="43.0" prefHeight="130.0" prefWidth="1043.0">
                <columns>
                   <TableColumn fx:id="IDCol" prefWidth="39.0" text="ID" />
                   <TableColumn fx:id="titleCol" prefWidth="69.0" text="Title" />
@@ -38,12 +38,13 @@
             </TableView>
             <Button fx:id="cancelAppointmentButton" layoutX="891.0" layoutY="177.0" mnemonicParsing="false" onAction="#deleteAppointment" prefHeight="30.0" prefWidth="126.0" text="Cancel Appointment" />
             <Button fx:id="updateAppointmentButton" layoutX="790.0" layoutY="177.0" mnemonicParsing="false" onAction="#updateAppointment" prefHeight="30.0" prefWidth="87.0" text="Update" />
-            <RadioButton fx:id="byMonth" layoutX="604.0" layoutY="14.0" mnemonicParsing="false" selected="true" text="By Month">
+            <RadioButton fx:id="byMonth" layoutX="604.0" layoutY="14.0" mnemonicParsing="false" onAction="#byMonthToggle" text="By Month">
                <toggleGroup>
                   <ToggleGroup fx:id="sortDate" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton fx:id="byWeek" layoutX="496.0" layoutY="14.0" mnemonicParsing="false" text="By Week" toggleGroup="$sortDate" />
+            <RadioButton fx:id="byWeek" layoutX="496.0" layoutY="14.0" mnemonicParsing="false" onAction="#byWeekToggle" text="By Week" toggleGroup="$sortDate" />
+            <RadioButton fx:id="allAppointments" layoutX="424.0" layoutY="14.0" mnemonicParsing="false" onAction="#allAptToggle" selected="true" text="All" toggleGroup="$sortDate" />
          </children>
       </AnchorPane>
       <AnchorPane layoutX="639.0" layoutY="229.0" prefHeight="493.0" prefWidth="432.0" style="-fx-border-color: black; -fx-border-radius: 10;">
@@ -139,7 +140,12 @@
             </TextArea>
          </children>
       </AnchorPane>
-      <Button layoutX="230.0" layoutY="631.0" mnemonicParsing="false" onAction="#toCustomers" prefHeight="55.0" prefWidth="176.0" text="To Customers">
+      <Button layoutX="61.0" layoutY="631.0" mnemonicParsing="false" onAction="#toCustomers" prefHeight="55.0" prefWidth="176.0" text="Customers">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+      <Button layoutX="325.0" layoutY="631.0" mnemonicParsing="false" onAction="#toReports" prefHeight="55.0" prefWidth="176.0" text="Reports">
          <font>
             <Font size="18.0" />
          </font>

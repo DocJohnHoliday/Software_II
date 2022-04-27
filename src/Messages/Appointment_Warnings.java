@@ -86,10 +86,10 @@ public class Appointment_Warnings {
         });
     }
 
-    public static void upcomingAppointmentWarning(ZonedDateTime start, int id) {
+    public static void upcomingAppointmentWarning(ZonedDateTime start, int id, long interval) {
         var alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Appointment coming up within 15 minutes");
-        alert.setContentText("Appointment ID[" + id + " ] will start at " + start);
+        alert.setContentText("Appointment ID[" + id + " ] will start in " + interval + " minutes at " + start);
         alert.showAndWait().ifPresent((btnType) -> {
             clearDialogOptionSelections();
         });
@@ -117,6 +117,33 @@ public class Appointment_Warnings {
         var alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Before or after business hours");
         alert.setContentText("The appointment cannot be on weekends");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void startAfterWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Start time is after end time");
+        alert.setContentText("The Apt start time must be before the Apt end time.");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void startEqualsEndWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Start and end are same time");
+        alert.setContentText("The Apt start time must be before the Apt end time. Apt can not begin and end at same time");
+        alert.showAndWait().ifPresent((btnType) -> {
+            clearDialogOptionSelections();
+        });
+    }
+
+    public static void overlapWarning() {
+        var alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Overlapping customer appointments");
+        alert.setContentText("This is an overlapping appointments");
         alert.showAndWait().ifPresent((btnType) -> {
             clearDialogOptionSelections();
         });

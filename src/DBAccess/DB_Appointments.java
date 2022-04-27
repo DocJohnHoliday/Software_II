@@ -1,18 +1,18 @@
 package DBAccess;
 
 import Helper.JDBC;
+import Messages.Appointment_Warnings;
 import Model.Appointments;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-
+import java.time.temporal.ChronoUnit;
 
 
 public class DB_Appointments {
@@ -56,7 +56,7 @@ public class DB_Appointments {
             e.printStackTrace();
         }
 
-        return  aList;
+        return aList;
     }
 
     public static void createAppointment(String title, String description, String location, int contact, String type, int customer,
@@ -134,5 +134,36 @@ public class DB_Appointments {
             e.printStackTrace();
         }
 
+    }
+
+    public static boolean checkOverlappingAppointment(int customer, LocalDateTime time) throws SQLException {
+
+        ZonedDateTime ldtZoned = time.atZone(ZoneId.systemDefault());
+        ZonedDateTime utcStart = ldtZoned.withZoneSameInstant(ZoneId.of("UTC"));
+        ZonedDateTime utcEnd = utcStart.plusMinutes(1);
+        LocalDateTime startConvert = utcStart.toLocalDateTime();
+        LocalDateTime endConvert = utcEnd.toLocalDateTime();
+
+        String sql = "SELECT * FROM appointments WHERE Customer_ID = " + customer + " AND ('" + startConvert +
+                "' >= Start AND '" + startConvert + "' <= End) OR ( '" + endConvert + "' >= Start AND '" + endConvert + "' <= End)";
+
+        PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        int overLapApt = 0;
+
+        while (rs.next()) {
+            overLapApt++;
+        }
+
+        if(overLapApt > 0) {
+            Appointment_Warnings.overlapWarning();
+            System.out.println("Here");
+            System.out.println(customer);
+            return false;
+        } else {
+            System.out.println("Or here");
+            return true;
+        }
     }
 }
