@@ -1,29 +1,184 @@
 package Controller;
 
+import DBAccess.DB_Appointments;
+import DBAccess.DB_Contacts;
+import Helper.JDBC;
+import Messages.Report_Warning;
+import Model.Appointments;
+import Model.Contacts;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
-public class Reports_Controller {
+public class Reports_Controller implements Initializable {
+
+    //Table showing Schedule for Contacts
+    public TableView<Appointments> scheduleTable;
+    public ComboBox<Contacts> contactCombo;
+    public TableColumn<Appointments, Integer> scheduleIDCol;
+    public TableColumn<Appointments, String> scheduleTitleCol;
+    public TableColumn<Appointments, String> scheduleTypeCol;
+    public TableColumn<Appointments, String> scheduleDesCol;
+    public TableColumn<Appointments, ZonedDateTime> scheduleStartCol;
+    public TableColumn<Appointments, ZonedDateTime> scheduleEndCol;
+    public TableColumn<Appointments, Integer> scheduleCustIDCol;
+    //Total # of Apts
+    public TextField totalTypeInput;
+    public TextField monthInput;
+    public TextField totalByType;
+    public TextField totalByMonth;
+    //Shows number of appointments for today
+    public TableView<Appointments> currentDayTable;
+    public TextField todayText;
+    public TextField numOfAptsToday;
+    public TableColumn<Appointments, Integer> todayIDCol;
+    public TableColumn<Appointments, String> todayTitleCol;
+    public TableColumn<Appointments, String> todayTypeCol;
+    public TableColumn<Appointments, String> todayDesCol;
+    public TableColumn<Appointments, ZonedDateTime> todayStartCol;
+    public TableColumn<Appointments, ZonedDateTime> todayEndCol;
+    public TableColumn<Appointments, Integer> todayCustIDCol;
+
 
     Stage stage;
 
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        ZoneId label = ZoneId.systemDefault();
+        LocalDateTime ldt = LocalDateTime.now();
+        ZonedDateTime zdt = ZonedDateTime.of(ldt, label);
+        todayText.setText(zdt.toString());
+
+        contactCombo.setItems(DB_Contacts.getAllContacts());
+
+
+    }
+
+    public void findContactSchedule(ActionEvent actionEvent) {
+
+        Contacts selectedContact = contactCombo.getValue();
+
+        if(selectedContact == null) {
+            Report_Warning.typeWarning();
+        } else {
+            scheduleTable.setItems(DB_Appointments.getChosenContact(selectedContact.getContactID()));
+
+            scheduleIDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
+            scheduleTitleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+            scheduleDesCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+            scheduleTypeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+            scheduleStartCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+            scheduleEndCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+            scheduleCustIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+        }
+    }
+
+    public void totalByTypeAction(ActionEvent actionEvent) throws SQLException {
+
+        String selectedType = totalTypeInput.getText();
+        String sql = "SELECT COUNT(Type) FROM appointments WHERE Type = '" + selectedType + "'";
+        PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        while(rs.next()) {
+            String count = rs.getString("COUNT(Type)");
+            totalByType.setText(count);
+        }
+
+    }
+
+    public void totalByMonthAction(ActionEvent actionEvent) throws SQLException {
+
+        String selectedMonth = monthInput.getText();
+        String sql = "SELECT COUNT(monthname(Start)) FROM appointments WHERE monthname(Start) = '" + selectedMonth + "'";
+        PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        while(rs.next()) {
+            String count = rs.getString("COUNT(monthname(Start))");
+            totalByMonth.setText(count);
+        }
+
+    }
+
+    public void checkForApts(ActionEvent actionEvent) {
+
+        LocalDateTime today = LocalDateTime.now();
+        ZonedDateTime zdt = today.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+        ZonedDateTime utczdt = zdt.withZoneSameInstant(ZoneId.of("UTC"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        ObservableList<Appointments> aptsToday = FXCollections.observableArrayList();
+
+        try {
+            String sql = "SELECT * from appointments where '" + utczdt.format(formatter) + "' =  DATE(Start)";
+            PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            int i = 0;
+            while (rs.next()) {
+                i++;
+                int id = rs.getInt("Appointment_ID");
+                String title = rs.getString("title");
+                String description = rs.getString("Description");
+                String location = rs.getString("Location");
+                String type = rs.getString("Type");
+                Timestamp start = rs.getTimestamp("Start");
+                Timestamp end = rs.getTimestamp("End");
+                int customerID = rs.getInt("Customer_ID");
+                int userID = rs.getInt("User_ID");
+
+                LocalDateTime startLDT = start.toLocalDateTime();
+                ZonedDateTime startZDT = startLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                LocalDateTime endLDT = end.toLocalDateTime();
+                ZonedDateTime endZDT = endLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                for(int j = 0; j < DB_Appointments.getAllAppointments().size(); j++) {
+                    if(id == DB_Appointments.getAllAppointments().get(j).getAppointmentID()) {
+                        Appointments a = new Appointments(id, title, description, location,
+                                type, startZDT, endZDT, customerID, userID);
+                        aptsToday.add(a);
+                        currentDayTable.setItems(aptsToday);
+                        todayIDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
+                        todayTitleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+                        todayDesCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+                        todayTypeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+                        todayStartCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+                        todayEndCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+                        todayCustIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+                    }
+                }
+
+            }
+            numOfAptsToday.setText(String.valueOf(i));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void toAppointments(ActionEvent actionEvent) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View/Main_Form.fxml"));
+        loader.setLocation(getClass().getResource("/View/Appointments.fxml"));
         loader.load();
 
         stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();

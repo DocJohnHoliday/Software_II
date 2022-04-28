@@ -8,11 +8,9 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 
 public class DB_Appointments {
@@ -144,8 +142,10 @@ public class DB_Appointments {
         LocalDateTime startConvert = utcStart.toLocalDateTime();
         LocalDateTime endConvert = utcEnd.toLocalDateTime();
 
-        String sql = "SELECT * FROM appointments WHERE Customer_ID = " + customer + " AND ('" + startConvert +
-                "' >= Start AND '" + startConvert + "' <= End) OR ( '" + endConvert + "' >= Start AND '" + endConvert + "' <= End)";
+        String sql = "SELECT * FROM appointments WHERE Customer_ID = " + customer + " AND (('" + startConvert +
+                "' >= Start AND '" + startConvert + "' <= End) OR ( '" + endConvert + "' >= Start AND '" + endConvert + "' <= End))";
+
+        System.out.println(sql);
 
         PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
@@ -158,12 +158,47 @@ public class DB_Appointments {
 
         if(overLapApt > 0) {
             Appointment_Warnings.overlapWarning();
-            System.out.println("Here");
-            System.out.println(customer);
             return false;
         } else {
-            System.out.println("Or here");
             return true;
         }
+    }
+
+    public static ObservableList<Appointments> getChosenContact(int id) {
+
+        ObservableList<Appointments> chosenList = FXCollections.observableArrayList();
+
+        try {
+
+            String sql = "SELECT * FROM appointments WHERE Contact_ID = " + id;
+            PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int appointmentID = rs.getInt("Appointment_ID");
+                String title = rs.getString("title");
+                String description = rs.getString("Description");
+                String location = rs.getString("Location");
+                String type = rs.getString("Type");
+                Timestamp start = rs.getTimestamp("Start");
+                Timestamp end = rs.getTimestamp("End");
+                int customerID = rs.getInt("Customer_ID");
+                int userID = rs.getInt("User_ID");
+
+
+                LocalDateTime startLDT = start.toLocalDateTime();
+                ZonedDateTime startZDT = startLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                LocalDateTime endLDT = end.toLocalDateTime();
+                ZonedDateTime endZDT = endLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                Appointments D = new Appointments(appointmentID, title, description, location, type, startZDT, endZDT, customerID, userID);
+                chosenList.add(D);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return chosenList;
     }
 }

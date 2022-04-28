@@ -1,6 +1,5 @@
 package Model;
 
-import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 
 public class Appointments {
@@ -30,6 +29,25 @@ public class Appointments {
         this.customerID = customerID;
         this.userID = userID;
     }
+
+    public Appointments(int appointmentID, String title, String description, String location,
+                        String type, ZonedDateTime start, ZonedDateTime end, int customerID, int userID) {
+
+        this.appointmentID = appointmentID;
+        this.title = title;
+        this.description = description;
+        this.location = location;
+        this.type = type;
+        this.start = start;
+        this.end = end;
+        this.customerID = customerID;
+        this.userID = userID;
+    }
+
+    public Appointments(String type) {
+        this.type = type;
+    }
+
 
     public int getAppointmentID() {
         return appointmentID;
