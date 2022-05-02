@@ -24,10 +24,9 @@ import java.sql.SQLException;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ResourceBundle;
-
+/**This class is used as a controller for the appointment page. */
 public class Appointments_Controller implements Initializable {
 
-    public RadioButton allAppointments;
     Stage stage;
 
     ZoneId label = ZoneId.systemDefault();
@@ -69,11 +68,21 @@ public class Appointments_Controller implements Initializable {
     public RadioButton byMonth;
     public ToggleGroup sortDate;
     public RadioButton byWeek;
+    public RadioButton byAll;
 
     public Button saveButton;
 
-
+/**In the initialize method the appointment table view and all combo boxes are set.
+ * A for loop checks for any appointments that are scheduled within 15 minutes of login.
+ * @param url
+ * @param resourceBundle */
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        sortDate = new ToggleGroup();
+        byMonth.setToggleGroup(sortDate);
+        byWeek.setToggleGroup(sortDate);
+        byAll.setToggleGroup(sortDate);
+
 
         for(int i = 0; i < DB_Appointments.getAllAppointments().size(); i++) {
             Appointments a = DB_Appointments.getAllAppointments().get(i);
@@ -85,6 +94,8 @@ public class Appointments_Controller implements Initializable {
                 Appointment_Warnings.upcomingAppointmentWarning(a.getStart(), a.getAppointmentID(), interval);
                 messageCenter.setText("Appointment [" + a.getAppointmentID() +
                         "] is within " + interval + " minutes. \nStart time is " + a.getStart());
+            } else {
+                messageCenter.setText("No upcoming appointments");
             }
         }
 
@@ -121,7 +132,9 @@ public class Appointments_Controller implements Initializable {
         userIDCol.setCellValueFactory(new PropertyValueFactory<>("userID"));
     }
 
-
+/**The updateAppointment method updates a previously created appointment.
+ * The selected appointment from the table view is added to text fields and combo boxes.
+ * @param actionEvent*/
     public void updateAppointment(ActionEvent actionEvent) {
 
         Appointments selectedAppointment = AppointmentTable.getSelectionModel().getSelectedItem();
@@ -175,7 +188,9 @@ public class Appointments_Controller implements Initializable {
             }
         }
     }
-
+/**The saveAppointment method adds either a new appointment or updates a current appointment.
+ * If the appointment has been selected from table view and has an ID it will update the appointment otherwise it will create a new appointment.
+ * @param actionEvent*/
     public void saveAppointment(ActionEvent actionEvent) {
 
             String saveID = appointmentIDField.getText();
@@ -188,6 +203,7 @@ public class Appointments_Controller implements Initializable {
             User user = userIDCombo.getValue();
 
             try {
+                LocalDateTime today = LocalDateTime.now();
                 //For selecting start and end time from combo boxes
                 Integer startHours = startHourCombo.getValue();
                 Integer startMinutes = startMinCombo.getValue();
@@ -240,7 +256,11 @@ public class Appointments_Controller implements Initializable {
                             Appointment_Warnings.startAfterWarning();
                         } else if (sdt.isEqual(edt)) {
                             Appointment_Warnings.startEqualsEndWarning();
-                        } else {
+                        } else if (sdt.isBefore(today)){
+                            Appointment_Warnings.pastWarning();
+                        } else if (edt.isBefore(today)) {
+                            Appointment_Warnings.pastWarning();
+                        }else {
                             if (saveID.length() == 0) {
                                 if(!DB_Appointments.checkOverlappingAppointment(customer.getId(), sdt)) {
                                     return;
@@ -275,7 +295,9 @@ public class Appointments_Controller implements Initializable {
             appointmentDate.getEditor().clear();
             AppointmentTable.getSelectionModel().clearSelection();
     }
-
+/**The clearAppointmentForm clears all info from the text fields and combo boxes.
+ * Anything typed into the text fields and selected into combo boxes will be deleted.
+ * @param actionEvent */
     public void clearAppointmentForm(ActionEvent actionEvent) {
         appointmentIDField.clear();
         titleField.clear();
@@ -292,7 +314,9 @@ public class Appointments_Controller implements Initializable {
         appointmentDate.getEditor().clear();
         AppointmentTable.getSelectionModel().clearSelection();
     }
-
+/**The deleteAppointment method deletes a selected appointment.
+ * The selected appointment will be deleted from the database and the table.
+ * @param actionEvent */
     public void deleteAppointment(ActionEvent actionEvent) {
 
         Appointments selectedAppointment = AppointmentTable.getSelectionModel().getSelectedItem();
@@ -306,7 +330,9 @@ public class Appointments_Controller implements Initializable {
             Appointment_Warnings.appointmentDeleted(selectedAppointment.getAppointmentID(), selectedAppointment.getType());
         }
     }
-
+/**The toCustomers method sends to customer form.
+ * The toCustomers method sends to customer form also known as Main_Form.
+ * @param actionEvent */
     public void toCustomers(ActionEvent actionEvent) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
@@ -318,7 +344,9 @@ public class Appointments_Controller implements Initializable {
         stage.setScene(new Scene(scene));
         stage.show();
     }
-
+    /**The toReports method sends to report form.
+     * The toReports method sends to report form.
+     * @param actionEvent */
     public void toReports(ActionEvent actionEvent) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
@@ -330,14 +358,55 @@ public class Appointments_Controller implements Initializable {
         stage.setScene(new Scene(scene));
         stage.show();
     }
-
+/**The byMonthToggle adds only appointments that are held in the current month to the tableview.
+ * Only appointments in the current month will be in view in the tableview.
+ * @param actionEvent */
     public void byMonthToggle(ActionEvent actionEvent) {
+        AppointmentTable.setItems(DB_Appointments.getMonthlyAppointments());
+        IDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
+        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        descriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+        locationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
+        contactCol.setCellValueFactory(new PropertyValueFactory<>("contactName"));
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+        startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+        endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+        customerIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+        userIDCol.setCellValueFactory(new PropertyValueFactory<>("userID"));
     }
-
+/**The byWeekToggle adds only appointments that are held in the current week to the tableview.
+ * Only appointments in the current week will be in view in the tableview.
+ * @param actionEvent */
     public void byWeekToggle(ActionEvent actionEvent) {
-    }
 
+        AppointmentTable.setItems(DB_Appointments.getWeeklyAppointments());
+        IDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
+        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        descriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+        locationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
+        contactCol.setCellValueFactory(new PropertyValueFactory<>("contactName"));
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+        startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+        endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+        customerIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+        userIDCol.setCellValueFactory(new PropertyValueFactory<>("userID"));
+    }
+/**The allAptToggle adds all appointments to the tableview.
+ * All appointments in the database are shown in the tableview.
+ * @param actionEvent */
     public void allAptToggle(ActionEvent actionEvent) {
+
+        AppointmentTable.setItems(DB_Appointments.getAllAppointments());
+        IDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
+        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        descriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+        locationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
+        contactCol.setCellValueFactory(new PropertyValueFactory<>("contactName"));
+        typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+        startCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+        endCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+        customerIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+        userIDCol.setCellValueFactory(new PropertyValueFactory<>("userID"));
     }
 
 }

@@ -2,7 +2,7 @@ package Helper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-
+/**This class sets up connection with the database. */
 public abstract class JDBC {
 
     private static final String protocol = "jdbc";
@@ -14,7 +14,8 @@ public abstract class JDBC {
     private static final String userName = "sqlUser"; // Username
     private static String password = "Passw0rd!"; // Password
     public static Connection connection;  // Connection Interface
-
+/**Opens connection with database.
+ * The openConnection method opens the connection with the database. */
     public static void openConnection()
     {
         try {
@@ -27,11 +28,14 @@ public abstract class JDBC {
             e.printStackTrace();
         }
     }
-
+/**Gets the connection to database.
+ * The getConnection gets the connection that was opened with the openConnection method.
+ * @return connection. */
     public static Connection getConnection(){
         return connection;
     }
-
+/**Closes the connection to database.
+ * The closeConnection method closes the connection opened by the openConnection method. */
     public static void closeConnection() {
         try {
             connection.close();

@@ -8,9 +8,11 @@ import javafx.collections.ObservableList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+/**This class controls communication between contacts in the database and the controllers. */
 public class DB_Contacts {
-
+/**The getAllContacts method returns all contacts.
+ * This method returns all the contacts information from database.
+ * @return cList*/
     public static ObservableList<Contacts> getAllContacts() {
 
         ObservableList<Contacts> clist = FXCollections.observableArrayList();

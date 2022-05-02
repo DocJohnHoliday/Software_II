@@ -27,7 +27,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
+/**This class controls the reports page. */
 public class Reports_Controller implements Initializable {
 
     //Table showing Schedule for Contacts
@@ -60,7 +60,10 @@ public class Reports_Controller implements Initializable {
 
     Stage stage;
 
-
+/**The initialize method sets the comboBox for contacts and the users current ZonedID.
+ * The current local time and date is set to users current Zone ID and current time and date.
+ * @param url
+ * @param resourceBundle */
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         ZoneId label = ZoneId.systemDefault();
@@ -70,9 +73,10 @@ public class Reports_Controller implements Initializable {
 
         contactCombo.setItems(DB_Contacts.getAllContacts());
 
-
     }
-
+/**The findContactSchedule method sets the scheduleTable to the selected contacts schedule.
+ * The tableview is set depending on the contact combobox's setting.
+ * @param actionEvent */
     public void findContactSchedule(ActionEvent actionEvent) {
 
         Contacts selectedContact = contactCombo.getValue();
@@ -91,7 +95,9 @@ public class Reports_Controller implements Initializable {
             scheduleCustIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
         }
     }
-
+/**The totalByTypeAction uses the database to find the total number of appointments by type.
+ * The method counts the number of appointments with the entered type.
+ * @param actionEvent */
     public void totalByTypeAction(ActionEvent actionEvent) throws SQLException {
 
         String selectedType = totalTypeInput.getText();
@@ -105,7 +111,9 @@ public class Reports_Controller implements Initializable {
         }
 
     }
-
+/**The totalByMonthAction method uses the database to find the total number of appointments by month.
+ * The method counts the number of appointments with the entered month.
+ * @param actionEvent */
     public void totalByMonthAction(ActionEvent actionEvent) throws SQLException {
 
         String selectedMonth = monthInput.getText();
@@ -119,7 +127,9 @@ public class Reports_Controller implements Initializable {
         }
 
     }
-
+/**The checkForApts sets the tableview with the number of appointments for the current day.
+ * The number of appointments for the current day are presented along with the current day and the tableview is populated with the information for those appointments.
+ * @param actionEvent */
     public void checkForApts(ActionEvent actionEvent) {
 
         LocalDateTime today = LocalDateTime.now();
@@ -166,6 +176,8 @@ public class Reports_Controller implements Initializable {
                         todayStartCol.setCellValueFactory(new PropertyValueFactory<>("start"));
                         todayEndCol.setCellValueFactory(new PropertyValueFactory<>("end"));
                         todayCustIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+                    } else {
+                        Report_Warning.noAptWarning();
                     }
                 }
 
@@ -175,7 +187,9 @@ public class Reports_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
+/**The toAppointments method sends to appointment page.
+ * The toAppointments method sends to appointment page.
+ * @param actionEvent */
     public void toAppointments(ActionEvent actionEvent) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/View/Appointments.fxml"));
@@ -186,7 +200,9 @@ public class Reports_Controller implements Initializable {
         stage.setScene(new Scene(scene));
         stage.show();
     }
-
+/**The toCustomers method sends to customers page also known as Main_From.
+ * The toCustomers method sends to customers page also known as Main_From.
+ * @param actionEvent */
     public void toCustomers(ActionEvent actionEvent) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/View/Main_Form.fxml"));

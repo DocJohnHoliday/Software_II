@@ -1,7 +1,6 @@
 package DBAccess;
 
 import Helper.JDBC;
-import Model.Customer;
 import Model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,11 +8,13 @@ import javafx.collections.ObservableList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-
-
+/**This class handles the communication between the database and controllers for Users. */
 public class DB_Users {
-
+/**Checks whether username and password are in database.
+ * The loginCheck method checks whether the user entered correct username and passwords in login page.
+ * @param userName User name in Users.
+ * @param userPassword User password in Users.
+ * @return boolean. */
     public static boolean loginCheck(String userName, String userPassword) {
 
         try {
@@ -31,7 +32,9 @@ public class DB_Users {
         }
         return false;
     }
-
+/**Gets all User info from database.
+ * The getAllUsers method adds all users to observable list.
+ * @return uList. */
     public static ObservableList<User> getAllUser() {
 
         ObservableList<User> ulist = FXCollections.observableArrayList();

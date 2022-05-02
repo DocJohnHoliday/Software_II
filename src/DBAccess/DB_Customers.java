@@ -1,7 +1,6 @@
 package DBAccess;
 
 import Helper.JDBC;
-import Model.Country;
 import Model.Customer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,10 +8,11 @@ import javafx.collections.ObservableList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-
+/**This class controls communication between customers in the database and the controllers.*/
 public class DB_Customers {
-
+/**The getAllCustomers method returns all the customers.
+ * This method returns all customers from the database.
+ * @return cList*/
     public static ObservableList<Customer> getAllCustomers() {
 
         ObservableList<Customer> clist = FXCollections.observableArrayList();
@@ -44,7 +44,13 @@ public class DB_Customers {
 
         return  clist;
     }
-
+/**This method creates a customer.
+ * The createCustomer method creates a customer in the database.
+ * @param name Customer Name.
+ * @param address Customer Address.
+ * @param code Customer postal code.
+ * @param division Customer first level division.
+ * @param phone Customer Phone #. */
     public static void createCustomer(String name, String address, String code,
                                       String phone, int division) {
 
@@ -65,7 +71,14 @@ public class DB_Customers {
         }
 
     }
-
+/**This method updates a current customer.
+ * The modifyCustomer method updates a Customer already in the database.
+ * @param phone Customer phone #.
+ * @param address Customer address.
+ * @param name Customer name.
+ * @param id Customer ID.
+ * @param divisionID Customer division ID.
+ * @param postalCode Customer postal code. */
     public static void modifyCustomer(int id, String name, String address, String postalCode, String phone,
                                       int divisionID){
 
@@ -87,7 +100,9 @@ public class DB_Customers {
         }
 
     }
-
+/**Deletes customer.
+ * The delete method  deletes a customer from database.
+ * @param customerID Customer ID. */
     public static void delete(int customerID) {
 
         try {

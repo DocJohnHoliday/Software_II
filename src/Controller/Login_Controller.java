@@ -1,13 +1,8 @@
 package Controller;
 
 import DBAccess.DB_Users;
-import Helper.JDBC;
 import Messages.Login_Warnings;
 
-import Model.Customer;
-import Model.User;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -18,17 +13,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-
-
+/**This class is used as a controller for the login page*/
 public class Login_Controller implements Initializable {
     Stage stage;
 
@@ -43,17 +36,27 @@ public class Login_Controller implements Initializable {
     public TextField Name;
     public TextField Password;
 
-
-    public void loginButton(ActionEvent actionEvent) throws SQLException, IOException {
+/**The loginButton method compares user entered data to the data in the database.
+ * The loginButton method checks for user credentials and logs login attempt to login_activity.txt.
+ * @param actionEvent */
+    public void loginButton(ActionEvent actionEvent) throws IOException {
 
         String textName = Name.getText();
         String textPassword = Password.getText();
-
+        Date date = new Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        String filename = "login_activity.txt";
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename,true));
 
         if (textName != null && textName.length() != 0 &&
                 textPassword.length() != 0 && textPassword != null) {
 
-            if (DB_Users.loginCheck(textName, textPassword) == true) {
+            if (DB_Users.loginCheck(textName, textPassword)) {
+
+                writer.append(("Successful Login attempt for " + textName + " at " + timestamp));
+                writer.newLine();
+                writer.flush();
+                writer.close();
 
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(getClass().getResource("/View/Appointments.fxml"));
@@ -64,15 +67,21 @@ public class Login_Controller implements Initializable {
                 stage.setScene(new Scene(scene));
                 stage.show();
 
-
             } else {
                 Login_Warnings.incorrectLogin();
+                writer.append(("Failed Login attempt for " + textName + " at " + timestamp));
+                writer.newLine();
+                writer.flush();
+                writer.close();
             }
         } else {
             Login_Warnings.nullLogin();
         }
     }
-
+/**The initialize method checks for default language.
+ * If default language is set to french the login page and all error messages will be displayed in French.
+ * @param resourceBundle Gets languages.
+ * @param url */
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         ZoneId label = ZoneId.systemDefault();
@@ -99,4 +108,5 @@ public class Login_Controller implements Initializable {
 
         }
     }
+
 }

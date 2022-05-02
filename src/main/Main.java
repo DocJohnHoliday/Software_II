@@ -7,9 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.time.LocalDateTime;
-import java.util.Locale;
-
+/**This class creates an appointment management app.*/
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
@@ -18,7 +16,9 @@ public class Main extends Application {
         stage.setScene(new Scene(root, 800, 600));
         stage.show();
     }
-
+    /**This is the main method.
+     This launches the program.
+     @param args args*/
     public static void main(String[] args) {
 
         /* Test for French */

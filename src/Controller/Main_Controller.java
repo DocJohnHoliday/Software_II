@@ -5,7 +5,6 @@ import DBAccess.DB_Customers;
 import DBAccess.DB_Divisions;
 import DBAccess.DB_Appointments;
 import Messages.Main_Warnings;
-import Model.Appointments;
 import Model.Country;
 import Model.Customer;
 
@@ -19,18 +18,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
-
 import java.io.IOException;
 import java.net.URL;
 
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
-
-
+/**This class controls the Customer page also known as the Main_Form.*/
 public class Main_Controller implements Initializable{
 
     Stage stage;
-
     //Customer Table
     public TableView<Customer>CustomerTable;
     public TableColumn<Customer, Integer> IDCol;
@@ -40,25 +37,23 @@ public class Main_Controller implements Initializable{
     public TableColumn<Customer, String> PhoneCol;
     public TableColumn<Customer, Integer> DivCol;
     public TableColumn<Customer, String> CountryCol;
-
     //Buttons
     public Button deleteButton;
     public Button updateButton;
-
     //Text fields for add/update
     public TextField idField;
     public TextField codeField;
     public TextField addressField;
     public TextField phoneField;
     public TextField nameField;
-
     //Combo Fields
     public ComboBox<Country> countryCombo;
     public ComboBox<Divisions> divisionCombo;
 
-    private static int index;
-
-
+/**The initialize method sets the tableview to show all customers.
+ * All customer information is shown in the tableview.
+ * @param url
+ * @param resourceBundle */
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         countryCombo.setItems(DB_Country.getCountries());
@@ -74,12 +69,12 @@ public class Main_Controller implements Initializable{
         CountryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
         
     }
-
-
+/**The updateCustomer method updates a previously made customer.
+ * The selected customer from the table view is added to text fields and combo boxes.
+ * @param actionEvent */
     public void updateCustomer(ActionEvent actionEvent) {
 
         Customer selectedCustomer = CustomerTable.getSelectionModel().getSelectedItem();
-        index = DB_Customers.getAllCustomers().indexOf(selectedCustomer);
 
         if(selectedCustomer == null) {
             Main_Warnings.nullUpdate();
@@ -105,9 +100,10 @@ public class Main_Controller implements Initializable{
                 }
             }
         }
-
     }
-
+/**The saveCustomer method adds either a new customer or updates a current customer.
+ * If the customer has been selected from table view and has an ID it will update the customer otherwise it will create a new customer.
+ * @param actionEvent */
     public void saveCustomer(ActionEvent actionEvent) throws NumberFormatException {
 
         String saveID = idField.getText();
@@ -134,10 +130,11 @@ public class Main_Controller implements Initializable{
                         divisions.getDivisionId());
             }
         }
-
         CustomerTable.setItems(DB_Customers.getAllCustomers());
     }
-
+/**The comboSelection sets the country and state combo boxes.
+ * The divisionCombo box will be set according to what the countryCombo is set to.
+ * @param actionEvent */
     public void comboSelection(ActionEvent actionEvent) {
 
         Country us = countryCombo.getItems().get(0);
@@ -156,7 +153,9 @@ public class Main_Controller implements Initializable{
             divisionCombo.setItems(DB_Divisions.getCanada());
         }
     }
-
+/**The clearCustomerForm clears all info from the text fields and combo boxes.
+ * Anything typed into the text fields and selected into combo boxes will be deleted.
+ * @param actionEvent */
     public void clearCustomerForm(ActionEvent actionEvent) {
         idField.clear();
         nameField.clear();
@@ -167,29 +166,23 @@ public class Main_Controller implements Initializable{
         countryCombo.getSelectionModel().clearSelection();
         CustomerTable.getSelectionModel().clearSelection();
     }
-
-    public void deleteCustomer(ActionEvent actionEvent) {
+    /**The deleteCustomer method deletes a selected customer.
+     * The selected customer will be deleted from the database and the table, if no appointments are associated with the selected customer.
+     * @param actionEvent */
+    public void deleteCustomer(ActionEvent actionEvent) throws SQLException {
 
         Customer selectedCustomer = CustomerTable.getSelectionModel().getSelectedItem();
-        index = DB_Customers.getAllCustomers().indexOf(selectedCustomer);
 
         if(selectedCustomer == null) {
             Main_Warnings.selectionDeleteWarning();
         } else {
-            for (int i = 0; i < DB_Appointments.getAllAppointments().size(); i++) {
-                Appointments sa = DB_Appointments.getAllAppointments().get(i);
-                if (sa.getCustomerID() == selectedCustomer.getId()) {
-                    Main_Warnings.cannotDeleteWarning(selectedCustomer.getId(), selectedCustomer.getName(), sa.getAppointmentID());
-                } else {
-                    Main_Warnings.deleteConfirmation(selectedCustomer.getId(), selectedCustomer.getName());
-                    CustomerTable.setItems(DB_Customers.getAllCustomers());
-                    Main_Warnings.customerDeleted(selectedCustomer.getId(), selectedCustomer.getName());
-                }
-                break;
-            }
+            DB_Appointments.getAllCustfromAppointments(selectedCustomer.getId(), selectedCustomer.getName());
+            CustomerTable.setItems(DB_Customers.getAllCustomers());
         }
     }
-
+/**The appointments method sends to appointments form.
+ * The appointments method sends to appointment form.
+ * @param actionEvent */
     public void appointments(ActionEvent actionEvent) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();

@@ -3,9 +3,13 @@ package Messages;
 import javafx.scene.control.Alert;
 
 import java.util.Locale;
-
+/**This class shows all warning messages for the login controller.
+ * All methods in this class use a lambda expression.
+ * These lambda expression allow for condensed and more legible code. */
 public class Login_Warnings {
 
+/**This method shows a message for incorrect login in login controller.
+ * This method can be shown in either French or English depending on computer settings. */
     public static void incorrectLogin() {
 
         if (Locale.getDefault().getLanguage().equals("fr")) {
@@ -29,7 +33,7 @@ public class Login_Warnings {
             });
         }
     }
-
+/**his method shows warning dialog for null fields in login controller. */
     public static void nullLogin() {
 
         if (Locale.getDefault().getLanguage().equals("fr")) {
@@ -54,7 +58,7 @@ public class Login_Warnings {
         }
 
     }
-
+    /**An empty method for dialog boxes. */
     private static void clearDialogOptionSelections() {
     }
 
