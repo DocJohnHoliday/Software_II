@@ -3,9 +3,11 @@ package DBAccess;
 import Helper.JDBC;
 import Messages.Appointment_Warnings;
 import Messages.Main_Warnings;
+import Messages.Report_Warning;
 import Model.Appointments;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.*;
 import java.time.*;
@@ -372,4 +374,46 @@ public class DB_Appointments {
                 Main_Warnings.deleteConfirmation(customer, name);
             }
     }
+
+    public static ObservableList<Appointments> dailyApts() {
+
+        LocalDateTime today = LocalDateTime.now();
+        ZonedDateTime zdt = today.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+        ZonedDateTime utczdt = zdt.withZoneSameInstant(ZoneId.of("UTC"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        ObservableList<Appointments> aptsToday = FXCollections.observableArrayList();
+
+        try {
+            String sql = "SELECT * from appointments where '" + utczdt.format(formatter) + "' =  DATE(Start)";
+            PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("Appointment_ID");
+                String title = rs.getString("title");
+                String description = rs.getString("Description");
+                String location = rs.getString("Location");
+                String type = rs.getString("Type");
+                Timestamp start = rs.getTimestamp("Start");
+                Timestamp end = rs.getTimestamp("End");
+                int customerID = rs.getInt("Customer_ID");
+                int userID = rs.getInt("User_ID");
+
+                LocalDateTime startLDT = start.toLocalDateTime();
+                ZonedDateTime startZDT = startLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                LocalDateTime endLDT = end.toLocalDateTime();
+                ZonedDateTime endZDT = endLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
+
+                Appointments a = new Appointments(id, title, description, location,
+                        type, startZDT, endZDT, customerID, userID);
+                aptsToday.add(a);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return aptsToday;
+    }
+
 }

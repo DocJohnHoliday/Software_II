@@ -75,9 +75,9 @@
                         <TableColumn fx:id="todayCustIDCol" prefWidth="82.0" text="Customer ID" />
                      </columns>
                   </TableView>
-                  <TextField fx:id="todayText" layoutX="19.0" layoutY="32.0" />
+                  <TextField fx:id="todayText" editable="false" layoutX="19.0" layoutY="32.0" />
                   <Label layoutX="19.0" layoutY="104.0" prefHeight="17.0" prefWidth="91.0" text="# of Apts. today" />
-                  <TextField fx:id="numOfAptsToday" layoutX="118.0" layoutY="100.0" prefHeight="25.0" prefWidth="28.0" />
+                  <TextField fx:id="numOfAptsToday" editable="false" layoutX="118.0" layoutY="100.0" prefHeight="25.0" prefWidth="28.0" />
                   <Button layoutX="28.0" layoutY="70.0" mnemonicParsing="false" onAction="#checkForApts" text="Check" />
                </children>
             </AnchorPane>

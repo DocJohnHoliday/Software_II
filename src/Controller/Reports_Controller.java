@@ -132,61 +132,23 @@ public class Reports_Controller implements Initializable {
  * @param actionEvent */
     public void checkForApts(ActionEvent actionEvent) {
 
-        LocalDateTime today = LocalDateTime.now();
-        ZonedDateTime zdt = today.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
-        ZonedDateTime utczdt = zdt.withZoneSameInstant(ZoneId.of("UTC"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        ObservableList<Appointments> aptsToday = FXCollections.observableArrayList();
-
-        try {
-            String sql = "SELECT * from appointments where '" + utczdt.format(formatter) + "' =  DATE(Start)";
-            PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            int i = 0;
-            while (rs.next()) {
-                i++;
-                int id = rs.getInt("Appointment_ID");
-                String title = rs.getString("title");
-                String description = rs.getString("Description");
-                String location = rs.getString("Location");
-                String type = rs.getString("Type");
-                Timestamp start = rs.getTimestamp("Start");
-                Timestamp end = rs.getTimestamp("End");
-                int customerID = rs.getInt("Customer_ID");
-                int userID = rs.getInt("User_ID");
-
-                LocalDateTime startLDT = start.toLocalDateTime();
-                ZonedDateTime startZDT = startLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
-
-                LocalDateTime endLDT = end.toLocalDateTime();
-                ZonedDateTime endZDT = endLDT.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
-
-                for(int j = 0; j < DB_Appointments.getAllAppointments().size(); j++) {
-                    if(id == DB_Appointments.getAllAppointments().get(j).getAppointmentID()) {
-                        Appointments a = new Appointments(id, title, description, location,
-                                type, startZDT, endZDT, customerID, userID);
-                        aptsToday.add(a);
-                        currentDayTable.setItems(aptsToday);
-                        todayIDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
-                        todayTitleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
-                        todayDesCol.setCellValueFactory(new PropertyValueFactory<>("description"));
-                        todayTypeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
-                        todayStartCol.setCellValueFactory(new PropertyValueFactory<>("start"));
-                        todayEndCol.setCellValueFactory(new PropertyValueFactory<>("end"));
-                        todayCustIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
-                    } else {
-                        Report_Warning.noAptWarning();
-                    }
-                }
-
-            }
-            numOfAptsToday.setText(String.valueOf(i));
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if(!DB_Appointments.dailyApts().isEmpty()) {
+            currentDayTable.setItems(DB_Appointments.dailyApts());
+            todayIDCol.setCellValueFactory(new PropertyValueFactory<>("appointmentID"));
+            todayTitleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+            todayDesCol.setCellValueFactory(new PropertyValueFactory<>("description"));
+            todayTypeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
+            todayStartCol.setCellValueFactory(new PropertyValueFactory<>("start"));
+            todayEndCol.setCellValueFactory(new PropertyValueFactory<>("end"));
+            todayCustIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
+        } else {
+            Report_Warning.noAptWarning();
         }
+
+        int x = DB_Appointments.dailyApts().size();
+        numOfAptsToday.setText(String.valueOf(x));
     }
+
 /**The toAppointments method sends to appointment page.
  * The toAppointments method sends to appointment page.
  * @param actionEvent */

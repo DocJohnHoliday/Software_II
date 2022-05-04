@@ -81,22 +81,64 @@ public class Login_Controller implements Initializable {
         }
     }
 /**The initialize method checks for default language.
- * If default language is set to french the login page and all error messages will be displayed in French.
  * Lambda expression allows enter key to be pressed.
- * @param resourceBundle Gets languages.
- * @param url */
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-
-        //Lambda expression, Allows for enter to be pressed rather than clicking the button
+ * @param actionEvent Goes to next page. */
+    public void initialize(ActionEvent actionEvent) {
+        
         logIn.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
             if (ev.getCode() == KeyCode.ENTER) {
                 try {
-                    loginButton(new ActionEvent());
+                    String textName = Name.getText();
+                    String textPassword = Password.getText();
+                    Date date = new Date();
+                    Timestamp timestamp = new Timestamp(date.getTime());
+                    String filename = "login_activity.txt";
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(filename,true));
+
+                    if (textName != null && textName.length() != 0 &&
+                            textPassword.length() != 0 && textPassword != null) {
+
+                        if (DB_Users.loginCheck(textName, textPassword)) {
+
+                            writer.append(("Successful Login attempt for " + textName + " at " + timestamp));
+                            writer.newLine();
+                            writer.flush();
+                            writer.close();
+
+                            FXMLLoader loader = new FXMLLoader();
+                            loader.setLocation(getClass().getResource("/View/Appointments.fxml"));
+                            loader.load();
+
+                            stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+                            Parent scene = loader.getRoot();
+                            stage.setScene(new Scene(scene));
+                            stage.show();
+
+                        } else {
+                            Login_Warnings.incorrectLogin();
+                            writer.append(("Failed Login attempt for " + textName + " at " + timestamp));
+                            writer.newLine();
+                            writer.flush();
+                            writer.close();
+                        }
+                    } else {
+                        Login_Warnings.nullLogin();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
+
+    }
+/**The initialize method checks for default language.
+ * If default language is set to french the login page and all error messages will be displayed in French.
+ * @param url
+ * @param resourceBundle*/
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        //Locale.setDefault(Locale.FRENCH);
 
         ZoneId label = ZoneId.systemDefault();
         ZoneLabel.setText(label.toString());
