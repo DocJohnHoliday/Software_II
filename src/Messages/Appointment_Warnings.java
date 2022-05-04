@@ -7,7 +7,7 @@ import javafx.scene.control.ButtonType;
 import java.time.ZonedDateTime;
 /**This class shows all warning messages for the Appointments controller.
  * All methods in this class use a lambda expression.
- * These lambda expression allow for condensed and more legible code. */
+ * These lambda expressions allow for condensed and more legible code. */
 public class Appointment_Warnings {
 /**This method shows warning dialog for null fields in Appointments controller.
  * lambda expression show alert and allow button OK to confirm*/

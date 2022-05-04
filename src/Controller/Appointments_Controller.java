@@ -162,8 +162,6 @@ public class Appointments_Controller implements Initializable {
             LocalTime endMinute = selectedAppointment.getEnd().toLocalTime();
             endMinCombo.setValue(endMinute.getMinute());
 
-
-
             for(int i = 0; i < contactCombo.getItems().size(); i++) {
                 Contacts c = contactCombo.getItems().get(i);
                 if(c.getContactName().equals(selectedAppointment.getContactName())) {
@@ -280,20 +278,6 @@ public class Appointments_Controller implements Initializable {
             }
 
         AppointmentTable.setItems(DB_Appointments.getAllAppointments());
-            appointmentIDField.clear();
-            titleField.clear();
-            descriptionField.clear();
-            locationField.clear();
-            typeField.clear();
-            contactCombo.getSelectionModel().clearSelection();
-            customerIDCombo.getSelectionModel().clearSelection();
-            userIDCombo.getSelectionModel().clearSelection();
-            startHourCombo.getSelectionModel().clearSelection();
-            startMinCombo.getSelectionModel().clearSelection();
-            endHourCombo.getSelectionModel().clearSelection();
-            endMinCombo.getSelectionModel().clearSelection();
-            appointmentDate.getEditor().clear();
-            AppointmentTable.getSelectionModel().clearSelection();
     }
 /**The clearAppointmentForm clears all info from the text fields and combo boxes.
  * Anything typed into the text fields and selected into combo boxes will be deleted.

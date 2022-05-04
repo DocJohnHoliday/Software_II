@@ -1,5 +1,6 @@
 package Messages;
 
+import DBAccess.DB_Appointments;
 import DBAccess.DB_Customers;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -47,16 +48,6 @@ public class Main_Warnings {
             clearDialogOptionSelections();
         });
     }
-    /**This method shows warning dialog for customer unable to be deleted in main form controller.
-     * lambda expression show alert and allow button OK to confirm*/
-    public static void cannotDeleteWarning(int customerID, String customerName) {
-        var alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Customer cannot be deleted");
-        alert.setContentText("Customer [" + customerID + "] " + customerName + " has an appointment. All associated appointments must be deleted first.");
-        alert.showAndWait().ifPresent((btnType) -> {
-            clearDialogOptionSelections();
-        });
-    }
     /**This method shows warning dialog for null fields in main form controller.
      * lambda expression show alert and allow button OK to confirm*/
     public static void selectionDeleteWarning() {
@@ -86,6 +77,7 @@ public class Main_Warnings {
         alert.setContentText("Are you sure you want to delete [" + unluckyCustomerID + "] " + unluckyCustomerName + "?");
         alert.showAndWait().ifPresent((btnType) -> {
             if (btnType == ButtonType.OK) {
+                DB_Appointments.deleteAppointmentWithCustomer(unluckyCustomerID);
                 DB_Customers.delete(unluckyCustomerID);
                 customerDeleted(unluckyCustomerID, unluckyCustomerName);
 

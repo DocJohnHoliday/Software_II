@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -80,9 +82,21 @@ public class Login_Controller implements Initializable {
     }
 /**The initialize method checks for default language.
  * If default language is set to french the login page and all error messages will be displayed in French.
+ * Lambda expression allows enter key to be pressed.
  * @param resourceBundle Gets languages.
  * @param url */
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        //Lambda expression, Allows for enter to be pressed rather than clicking the button
+        logIn.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
+            if (ev.getCode() == KeyCode.ENTER) {
+                try {
+                    loginButton(new ActionEvent());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         ZoneId label = ZoneId.systemDefault();
         ZoneLabel.setText(label.toString());
@@ -107,6 +121,6 @@ public class Login_Controller implements Initializable {
             logIn.setText(rb.getString("login"));
 
         }
-    }
 
+    }
 }

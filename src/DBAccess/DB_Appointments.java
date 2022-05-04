@@ -8,10 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Locale;
@@ -163,6 +160,22 @@ public class DB_Appointments {
         }
 
     }
+
+    public static void deleteAppointmentWithCustomer(int custID) {
+
+        try {
+            String sqlti = "DELETE from appointments WHERE Customer_ID = ?";
+
+            PreparedStatement ps = JDBC.getConnection().prepareStatement(sqlti);
+            ps.setInt(1, custID);
+
+            ps.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 /**The checkOverlappingAppointment method checks for overlapping appointments.
  * One customer cannot have more than one appointment at anytime.
  * @param customer customer ID.
@@ -248,9 +261,11 @@ public class DB_Appointments {
             ZonedDateTime zdt = today.atZone(ZoneId.of(ZoneId.systemDefault().toString()));
             ZonedDateTime utczdt = zdt.withZoneSameInstant(ZoneId.of("UTC"));
             Month month = utczdt.getMonth();
+            Year year = Year.of(utczdt.getYear());
 
             String sql = "SELECT Appointment_ID, title, Description, Location, Contact_Name, Type, Start, End, Customer_ID, User_ID" +
-                    " from appointments, contacts where MONTHNAME(Start) = '" + month + "' AND appointments.Contact_ID = contacts.Contact_ID";
+                    " from appointments, contacts where MONTHNAME(Start) = '" + month + "' AND appointments.Contact_ID = contacts.Contact_ID " +
+                    "AND YEAR(Start) = " + year;
             PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
@@ -352,7 +367,7 @@ public class DB_Appointments {
                 cust++;
             }
             if(cust > 0) {
-                Main_Warnings.cannotDeleteWarning(customer, name);
+                Main_Warnings.deleteConfirmation(customer, name);
             } else {
                 Main_Warnings.deleteConfirmation(customer, name);
             }
