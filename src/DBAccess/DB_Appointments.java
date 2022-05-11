@@ -209,6 +209,41 @@ public class DB_Appointments {
             return true;
         }
     }
+/**The checkOverlappingAppointment method checks for overlapping appointments.
+ * Allows a current appointment to be updated without triggering appointment overlap warning.
+ * @param appointment AppointmentID.
+ * @param customer CustomerID.
+ * @param time Appointment Time. */
+    public static boolean checkOverlapAptUpdate(int appointment, int customer, LocalDateTime time) throws SQLException {
+
+        ZonedDateTime ldtZoned = time.atZone(ZoneId.systemDefault());
+        ZonedDateTime utcStart = ldtZoned.withZoneSameInstant(ZoneId.of("UTC"));
+        ZonedDateTime utcEnd = utcStart.plusMinutes(1);
+        LocalDateTime startConvert = utcStart.toLocalDateTime();
+        LocalDateTime endConvert = utcEnd.toLocalDateTime();
+
+        String sql = "SELECT * " +
+                    "FROM appointments " +
+                "WHERE Appointment_ID != " + appointment +
+                " AND Customer_ID = " + customer +
+                " AND (('" + startConvert + "' >= Start AND '" + startConvert + "' <= End) OR ( '" + endConvert + "' >= Start AND '" + endConvert + "' <= End))";
+
+        PreparedStatement ps = JDBC.getConnection().prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        int overLapApt = 0;
+
+        while (rs.next()) {
+            overLapApt++;
+        }
+
+        if(overLapApt > 0) {
+            Appointment_Warnings.overlapWarning();
+            return false;
+        } else {
+            return true;
+        }
+    }
 /**The getChosenContact method gets the chosen contacts schedule.
  * All appointments with the chosen contact is sent to the reports page.
  * @param id Contact ID.

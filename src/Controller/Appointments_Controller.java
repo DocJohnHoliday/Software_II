@@ -267,8 +267,12 @@ public class Appointments_Controller implements Initializable {
                                         s, e, user.getId());
                             } else {
                                 int id = Integer.parseInt(saveID);
-                                DB_Appointments.updateAppointment(id, saveTitle, saveDescription, saveLocation, contacts.getContactID(), saveType, customer.getId(),
-                                        s, e, user.getId());
+                                if(!DB_Appointments.checkOverlapAptUpdate(id, customer.getId(), sdt)) {
+                                    return;
+                                } else {
+                                    DB_Appointments.updateAppointment(id, saveTitle, saveDescription, saveLocation, contacts.getContactID(), saveType, customer.getId(),
+                                            s, e, user.getId());
+                                }
                             }
                         }
             } catch (NullPointerException e) {
@@ -295,7 +299,7 @@ public class Appointments_Controller implements Initializable {
         startMinCombo.getSelectionModel().clearSelection();
         endHourCombo.getSelectionModel().clearSelection();
         endMinCombo.getSelectionModel().clearSelection();
-        appointmentDate.getEditor().clear();
+        appointmentDate.setValue(null);
         AppointmentTable.getSelectionModel().clearSelection();
     }
 /**The deleteAppointment method deletes a selected appointment.
